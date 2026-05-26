@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WASM Synthesizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="synth-container">
+        <header class="header">
+            <h1>WAVE<span class="highlight">SYNTH</span></h1>
+            <button id="btn-power">BẬT ÂM THANH</button>
+        </header>
+
+        <section class="screen-section">
+            <div class="screen-box">
+                <span class="screen-label">MAIN OSCILLATOR</span>
+                <canvas id="main-canvas"></canvas>
+            </div>
+            <div class="screen-box">
+                <span class="screen-label">LFO WAVE</span>
+                <canvas id="lfo-canvas"></canvas>
+            </div>
+        </section>
+
+        <section class="controls-section">
+            
+            <div class="module-box">
+                <h3>MAIN OSC</h3>
+                
+                <div class="control-group">
+                    <label>Tần số: <span id="val-freq" class="val-text">440</span> Hz</label>
+                    <input type="range" id="slider-freq" min="20" max="2000" value="440">
+                </div>
+
+                <div class="control-group">
+                    <label>Dạng sóng:</label>
+                    <div class="btn-group" id="wave-group">
+                        <button class="wave-btn active" data-val="0" title="Sine">
+                            <svg viewBox="0 0 24 24"><path d="M 2 12 Q 7 2 12 12 T 22 12"></path></svg>
+                        </button>
+                        <button class="wave-btn" data-val="1" title="Sawtooth">
+                            <svg viewBox="0 0 24 24"><path d="M 3 17 L 12 5 L 12 17 L 21 5"></path></svg>
+                        </button>
+                        <button class="wave-btn" data-val="2" title="Square">
+                            <svg viewBox="0 0 24 24"><path d="M 3 12 L 3 6 L 12 6 L 12 18 L 21 18 L 21 12"></path></svg>
+                        </button>
+                        <button class="wave-btn" data-val="3" title="Triangle">
+                            <svg viewBox="0 0 24 24"><path d="M 2 12 L 7 4 L 17 20 L 22 12"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="module-box">
+                <h3>LFO & MOD</h3>
+                
+                <div class="control-group">
+                    <label>Tốc độ: <span id="val-lfo-freq" class="val-text">2.0</span> Hz</label>
+                    <input type="range" id="slider-lfo-freq" min="0.1" max="20" step="0.1" value="2.0">
+                </div>
+
+                <div class="control-group">
+                    <label>Độ sâu: <span id="val-lfo-depth" class="val-text">0.5</span></label>
+                    <input type="range" id="slider-lfo-depth" min="0" max="1" step="0.01" value="0.5">
+                </div>
+
+                <div class="control-group">
+                    <label>Chế độ:</label>
+                    <div class="btn-group" id="mod-group">
+                        <button class="mod-btn active" data-val="0">OFF</button>
+                        <button class="mod-btn" data-val="1">AM</button>
+                        <button class="mod-btn" data-val="2">FM</button>
+                      
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Sóng LFO:</label>
+                    <div class="btn-group" id="lfo-wave-group">
+                        <button class="wave-btn active" data-val="0" title="Sine">
+                            <svg viewBox="0 0 24 24"><path d="M 2 12 Q 7 2 12 12 T 22 12"></path></svg>
+                        </button>
+                        <button class="wave-btn" data-val="1" title="Sawtooth">
+                            <svg viewBox="0 0 24 24"><path d="M 3 17 L 12 5 L 12 17 L 21 5"></path></svg>
+                        </button>
+                        <button class="wave-btn" data-val="2" title="Square">
+                            <svg viewBox="0 0 24 24"><path d="M 3 12 L 3 6 L 12 6 L 12 18 L 21 18 L 21 12"></path></svg>
+                        </button>
+                        <button class="wave-btn" data-val="3" title="Triangle">
+                            <svg viewBox="0 0 24 24"><path d="M 2 12 L 7 4 L 17 20 L 22 12"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="module-box">
+                <h3>FILTER</h3>
+                
+                <div class="btn-group" id="filter-power-group">
+                    <button class="active" data-val="0">OFF</button>
+                    <button data-val="1">ON</button>
+                </div>
+
+                <div class="control-group" style="margin-top: 15px;">
+                    <label>Cutoff: <span id="val-cutoff" class="val-text">20000</span> Hz</label>
+                    <input type="range" id="slider-cutoff" min="20" max="20000" value="20000">
+                </div>
+            </div>
+
+            <div class="module-box" id="adsr-module">
+                <h3>ENVELOPE (ADSR)</h3>
+                
+                <div class="control-group">
+                    <label>Attack: <span id="val-attack" class="val-text">0.01</span> s</label>
+                    <input type="range" id="slider-attack" min="0.01" max="2.0" step="0.01" value="0.01">
+                </div>
+
+                <div class="control-group">
+                    <label>Decay: <span id="val-decay" class="val-text">0.5</span> s</label>
+                    <input type="range" id="slider-decay" min="0.01" max="2.0" step="0.01" value="0.5">
+                </div>
+
+                <div class="control-group">
+                    <label>Sustain: <span id="val-sustain" class="val-text">0.50</span></label>
+                    <input type="range" id="slider-sustain" min="0.0" max="1.0" step="0.01" value="0.5">
+                </div>
+
+                <div class="control-group">
+                    <label>Release: <span id="val-release" class="val-text">1.0</span> s</label>
+                    <input type="range" id="slider-release" min="0.01" max="3.0" step="0.01" value="1.0">
+                </div>
+            </div>
+
+        </section>
+
+        <section class="keyboard-section">
+            <div class="piano-keyboard">
+                <div class="key white" data-freq="261.63"></div>
+                <div class="key black" data-freq="277.18"></div>
+                <div class="key white" data-freq="293.66"></div>
+                <div class="key black" data-freq="311.13"></div>
+                <div class="key white" data-freq="329.63"></div>
+                <div class="key white" data-freq="349.23"></div>
+                <div class="key black" data-freq="369.99"></div>
+                <div class="key white" data-freq="392.00"></div>
+                <div class="key black" data-freq="415.30"></div>
+                <div class="key white" data-freq="440.00"></div>
+                <div class="key black" data-freq="466.16"></div>
+                <div class="key white" data-freq="493.88"></div>
+                <div class="key white" data-freq="523.25"></div>
+            </div>
+        </section>
+    </div>
+
+    <script src="may_tao_song.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
